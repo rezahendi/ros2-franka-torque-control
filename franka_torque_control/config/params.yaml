@@ -1,0 +1,37 @@
+# Parameters for all three nodes. Change the mujoco_sim block to create a gap between the
+# controller's nominal model and the "real" robot, then watch the tracking error.
+mujoco_sim:
+  ros__parameters:
+    menagerie_path: ""        # empty: use $MENAGERIE_PATH, else ~/mujoco_menagerie
+    sim_rate_hz: 1000.0       # physics steps per second
+    publish_rate_hz: 500.0    # joint_states rate
+    use_viewer: true
+    # --- sim-to-real effects (all zero = perfect model) ---
+    payload_kg: 0.0           # unmodelled mass carried by link 7
+    link_mass_scale: 1.0      # 1.15 = every link 15 % heavier than the controller thinks
+    extra_damping: 0.0        # Nms/rad of viscous joint damping
+    friction_torque: 0.0      # Nm of Coulomb joint friction
+    actuation_delay_s: 0.0    # command-to-torque latency, e.g. 0.003
+    sensor_noise_pos: 0.0     # rad, e.g. 0.0005
+    sensor_noise_vel: 0.0     # rad/s, e.g. 0.005
+    seed: 0
+
+torque_controller:
+  ros__parameters:
+    menagerie_path: ""
+    controller: "computed_torque"   # or "pd_gravity"
+    control_rate_hz: 500.0
+    pd_kp: [600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0]
+    pd_kd: [50.0, 50.0, 50.0, 50.0, 30.0, 25.0, 15.0]
+    ct_kp: [400.0, 400.0, 400.0, 400.0, 400.0, 400.0, 400.0]
+    ct_kd: [40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0]
+
+trajectory:
+  ros__parameters:
+    rate_hz: 500.0
+    segment_time: 2.0         # seconds per waypoint-to-waypoint move
+    hold_time: 0.5            # pause at each waypoint
+    start_delay: 1.0          # hold the home pose before the first move
+    # waypoints as offsets from the home pose, 7 values per waypoint (home itself is implicit)
+    waypoint_offsets: [0.5, -0.3, 0.4, 0.4, 0.5, 0.4, 0.6,
+                       -0.5, 0.3, -0.4, -0.3, -0.5, -0.3, -0.6]
